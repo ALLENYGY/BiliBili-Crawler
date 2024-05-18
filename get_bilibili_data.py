@@ -4,6 +4,7 @@ import re
 from time import sleep
 import xml.etree.ElementTree as ET
 import pandas as pd
+import json
 
 HEADERS = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36',
@@ -84,10 +85,14 @@ def get_video_data(bvid):
     video_info = get_video_info(bvid)
     video_infos = filter_video_info(video_info)
     print("视频信息爬取完毕")
+
     # export the video information to a file
     with open("video_info.txt", "w", encoding="utf-8") as fp:
         for key, value in video_infos.items():
             fp.write(key + ": " + str(value) + "\n")
+    # export the video information to a json file
+    with open("video_info.json", "w", encoding="utf-8") as fp:
+        json.dump(video_infos, fp, ensure_ascii=False)
     return video_infos
 
 
@@ -95,7 +100,6 @@ def get_video_comment(bid):
     str = f"https://www.bilibili.com/video/{bid}"
     aid_ = f"https://api.bilibili.com/x/web-interface/view?bvid={bid}"
     tmp_data = requests.get(aid_, headers=HEADERS).json()
-    # print(f"正在从{aid_}解析网址aid")
     aid = tmp_data['data']['aid']
     comment = []
     like = []
@@ -106,7 +110,6 @@ def get_video_comment(bid):
             f"&oid={aid}&plat=1&type=1"
         try:
             responses = requests.get(url=url.format(i), headers=HEADERS).json()
-            # print(responses)
             i += 1
             for content in responses["data"]["replies"]:
                 comment.append(content["content"]["message"])
@@ -139,6 +142,9 @@ def get_video_dm(cid):
     cid = str(cid)
     dm_url = f"https://comment.bilibili.com/{cid}.xml"
     response = requests.get(dm_url, headers=HEADERS)
+    # export to xml file
+    with open("danmu.xml", "w", encoding="utf-8") as fp:
+        fp.write(response.text)
     danmu=parse_xml(response.content)
     print("弹幕爬取完毕")
     return danmu
@@ -157,8 +163,6 @@ def parse_xml(xml_text):
 
 def get_data(bvid):
     return get_video_data(bvid),get_video_comment(bvid),get_video_dm(get_cid(bvid))
-
-    # bvid = 'BV1Jh411Y7f6'
 
 if __name__ == '__main__':
     bvid='BV114411R7G2'
