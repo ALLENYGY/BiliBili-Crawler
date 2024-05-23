@@ -8,11 +8,9 @@ import json
 
 HEADERS = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36',
-    'cookie':"buvid3=157B584A-E63D-0168-7DFA-767E9B9C54C862030infoc; b_nut=1708437762; i-wanna-go-back=-1; b_ut=7; _uuid=A9B5249B-DDF1-CC910-1E2B-E310C6D91A9CA62352infoc; buvid_fp=5acc377b1e17e95839e6c165bf8a1553; enable_web_push=DISABLE; buvid4=7386F889-F4FA-1E4B-F015-C0CACCBFDD1A63132-024022014-Uz5bLrdgm9Lr%2FbmDKGUepg%3D%3D; DedeUserID=74214360; DedeUserID__ckMd5=d0b23f38ca212bbd; rpdid=|(u))l|ml~um0J'u~|)RJ~)mu; header_theme_version=CLOSE; hit-dyn-v2=1; FEED_LIVE_VERSION=V_WATCHLATER_PIP_WINDOW3; LIVE_BUVID=AUTO9117094820993473; is-2022-channel=1; CURRENT_BLACKGAP=0; bp_video_offset_74214360=924741733424562193; fingerprint=7c670eb0db7daf16c7a7ae0436cfe1d1; CURRENT_QUALITY=80; bili_ticket=eyJhbGciOiJIUzI1NiIsImtpZCI6InMwMyIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTYwMzczNzIsImlhdCI6MTcxNTc3ODExMiwicGx0IjotMX0.5Eyk7aO3FxqroW5EQ6LQ0FIDx-OTCU8UAcvK83zkECU; bili_ticket_expires=1716037312; SESSDATA=88653f34%2C1731427373%2Cd3385%2A52CjCg17Wlhr7NpqkSuR_AdyWIMTtL8_AX4tRE8S5wxm0mpCkig-02OJhPiVyiSH1KmmcSVi1jLWI5N1lIell6ZzJaRkdUeHdJMVFSb2FzS2VkTUtsalI3d3RWMTlxSFVUdDZQNjNibjBaTXBzNFVHOW1CRkdMN2N1NFVmMzBrZzhoRTFjUFZmam1RIIEC; bili_jct=c7c54a35738c381536a94edf10a4b778; PVID=1; CURRENT_FNVAL=4048; b_lsid=FAFB38E1_18F89DC9B7C; bp_t_offset_74214360=932722645936373865; sid=pfmlt2o8; home_feed_column=4; browser_resolution=684-823"
 }
 
 # Set up the API endpoint
-# url = 'https://api.bilibili.com/x/web-interface/view'
 url = 'https://api.bilibili.com/x/web-interface/view/detail'
 
 # Define the parameters
@@ -21,7 +19,7 @@ params = {
 }
 
 def update_headers_with_cookies(HEADERS):
-    print("准备扫码登录获取cookies")
+    print("Ready to scan the code to get cookies...")
     url="https://passport.bilibili.com/x/passport-login/web/qrcode/generate"
     response = requests.get(url, headers=HEADERS)
     qrcode_key=response.json()['data']['qrcode_key']
@@ -29,8 +27,7 @@ def update_headers_with_cookies(HEADERS):
     img=qrcode.make(qr_url)
     img.show()
     pass_url="https://passport.bilibili.com/x/passport-login/web/qrcode/poll?qrcode_key="+qrcode_key
-
-    # 扫码成功后关闭弹窗
+    # Close the window after scanning the code successfully
     response=requests.get(pass_url, headers=HEADERS)
     while response.json()['data']['message']=='未扫码':
         response = requests.get(pass_url, headers=HEADERS)
@@ -45,7 +42,7 @@ def update_headers_with_cookies(HEADERS):
         HEADERS['cookie']=cookies
         return HEADERS
     else:
-        print("获取cookies失败")
+        print("Get cookies failed!")
         return None
 
 def get_video_info(bvid):
@@ -81,10 +78,10 @@ def filter_video_info(video_info):
 
 def get_video_data(bvid):
     # Get the video information
-    print("开始爬取视频信息")
+    print("Begin to crawl video information...")
     video_info = get_video_info(bvid)
     video_infos = filter_video_info(video_info)
-    print("视频信息爬取完毕")
+    print("Video information has been crawled successfully!")
 
     # export the video information to a file
     with open("video_info.txt", "w", encoding="utf-8") as fp:
@@ -114,10 +111,9 @@ def get_video_comment(bid):
             for content in responses["data"]["replies"]:
                 comment.append(content["content"]["message"])
                 like.append(content['like'])
-            print("搜集到%d条评论" % (len(comment)))
-            # 调整爬虫策略，从必须每20条评论调整成上一次评论数和这一次评论数进行比较，如果有改变说明有新数据，如果没改变说明数据全部搜集完毕，爬虫停止
+            print("Search %d Comments" % (len(comment)))
             if len(comment) == pre_comment_length:
-                print("爬虫退出！！！")
+                print("Quit Crawling Comments!")
                 break
             else:
                 pre_comment_length = len(comment)
@@ -129,7 +125,7 @@ def get_video_comment(bid):
     # Export xlsx file
     comment_like.to_excel("comment.xlsx", index=False)
 
-    print("评论爬取完毕")
+    print("Comment has been crawled successfully!")
     return comment
 
 def get_cid(bvid):
@@ -138,7 +134,7 @@ def get_cid(bvid):
     return response.json()['data'][0]['cid']
 
 def get_video_dm(cid):
-    print("开始爬取弹幕")
+    print("Begin to crawl danmu...")
     cid = str(cid)
     dm_url = f"https://comment.bilibili.com/{cid}.xml"
     response = requests.get(dm_url, headers=HEADERS)
@@ -146,7 +142,7 @@ def get_video_dm(cid):
     with open("danmu.xml", "w", encoding="utf-8") as fp:
         fp.write(response.text)
     danmu=parse_xml(response.content)
-    print("弹幕爬取完毕")
+    print("Danmu has been crawled successfully!")
     return danmu
 
 
