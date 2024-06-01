@@ -4,6 +4,12 @@
 
 ## Quick Start
 
+```shell
+cd BiliBili-Crawler
+```
+
+*Replace the bvid in the scripts*
+
 ```python
 python get_bilibili_data.py
 ```

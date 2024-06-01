@@ -1,5 +1,6 @@
 import requests
 import qrcode
+import os
 import re
 from time import sleep
 import xml.etree.ElementTree as ET
@@ -87,8 +88,11 @@ def get_video_data(bvid):
     with open("video_info.txt", "w", encoding="utf-8") as fp:
         for key, value in video_infos.items():
             fp.write(key + ": " + str(value) + "\n")
+    # Create a folder to store the video information
+    # bvid is the name of the folder
     # export the video information to a json file
-    with open("video_info.json", "w", encoding="utf-8") as fp:
+    filepath=os.path.join(bvid,"video_info.json")
+    with open(filepath, "w", encoding="utf-8") as fp:
         json.dump(video_infos, fp, ensure_ascii=False)
     return video_infos
 
@@ -123,8 +127,8 @@ def get_video_comment(bid):
     # Combine the comment and like use dataframe
     comment_like = pd.DataFrame({"comment": comment, "like": like})
     # Export xlsx file
-    comment_like.to_excel("comment.xlsx", index=False)
-
+    filepath=os.path.join(bvid,"comment.xlsx")
+    comment_like.to_excel(filepath, index=False)
     print("Comment has been crawled successfully!")
     return comment
 
@@ -151,7 +155,8 @@ def parse_xml(xml_text):
     root = ET.fromstring(xml_text)
     danmu = []
     # Write the danmu to a file
-    with open('danmu.txt', 'w', encoding='utf-8') as file:
+    filepath=os.path.join(bvid,"danmu.txt")
+    with open(filepath, 'w', encoding='utf-8') as file:
         for d in root.findall('d'):
             file.write(d.text + '\n')
             danmu.append(d.text)
@@ -161,6 +166,12 @@ def get_data(bvid):
     return get_video_data(bvid),get_video_comment(bvid),get_video_dm(get_cid(bvid))
 
 if __name__ == '__main__':
-    bvid='BV114411R7G2'
-    HEADERS=update_headers_with_cookies(HEADERS)
+    bvid='BV1qU411f710'
+    # Create a folder to store the data
+    if not os.path.exists("Data"):
+        os.makedirs("Data")
+    os.chdir("Data")
+    if not os.path.exists(bvid):
+        os.makedirs(bvid)
+    HEADERS=update_headers_with_cookies(HEADERS) # 获取cookies
     video_info,video_comment,video_danmu=get_data(bvid)
