@@ -143,8 +143,8 @@ def get_video_dm(cid):
     dm_url = f"https://comment.bilibili.com/{cid}.xml"
     response = requests.get(dm_url, headers=HEADERS)
     # export to xml file
-    with open("danmu.xml", "w", encoding="utf-8") as fp:
-        fp.write(response.text)
+    # with open("danmu.xml", "w", encoding="utf-8") as fp:
+    #     fp.write(response.text)
     danmu=parse_xml(response.content)
     print("Danmu has been crawled successfully!")
     return danmu
