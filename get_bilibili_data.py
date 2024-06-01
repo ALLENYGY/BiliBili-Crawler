@@ -85,9 +85,9 @@ def get_video_data(bvid):
     print("Video information has been crawled successfully!")
 
     # export the video information to a file
-    with open("video_info.txt", "w", encoding="utf-8") as fp:
-        for key, value in video_infos.items():
-            fp.write(key + ": " + str(value) + "\n")
+    # with open("video_info.txt", "w", encoding="utf-8") as fp:
+    #     for key, value in video_infos.items():
+    #         fp.write(key + ": " + str(value) + "\n")
     # Create a folder to store the video information
     # bvid is the name of the folder
     # export the video information to a json file
@@ -166,7 +166,7 @@ def get_data(bvid):
     return get_video_data(bvid),get_video_comment(bvid),get_video_dm(get_cid(bvid))
 
 if __name__ == '__main__':
-    bvid='BV1qU411f710'
+    bvid='BV1dD421J7F1'
     # Create a folder to store the data
     if not os.path.exists("Data"):
         os.makedirs("Data")
